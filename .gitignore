@@ -1,0 +1,27 @@
+@"
+# Ignore Docker containers and logs
+docker-compose.override.yml
+docker-compose.yml
+.env
+*.log
+
+# Ignore WordPress files that shouldn't be in Git
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/advanced-cache.php
+
+# Ignore dependencies
+node_modules/
+vendor/
+"@ | Out-File -Encoding utf8 .gitignore
+
+# Ignore MySQL and database files
+db-data/
+db-data/mysql.sock
+
+# Ignore WordPress core files
+wp-data/
+!wp-data/wp-content/
+!wp-data/wp-config.php
+
