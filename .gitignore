@@ -21,7 +21,5 @@ db-data/
 db-data/mysql.sock
 
 # Ignore WordPress core files
-wp-data/
-!wp-data/wp-content/
 !wp-data/wp-config.php
 
