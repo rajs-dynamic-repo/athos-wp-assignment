@@ -1,0 +1,24 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  --whitecolor: #FFF;
+  --primarycolor: #1C1A9A;
+  --neon-green: #B2DF1F;
+}
+
+.scrn-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.scrn-container-small {
+  max-width: 1050px;
+  margin: 0 auto;
+  width: 100%;
+}

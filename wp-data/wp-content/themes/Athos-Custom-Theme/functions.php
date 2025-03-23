@@ -31,7 +31,9 @@ add_filter('theme_page_templates', 'register_custom_templates', 10, 3);
 // Enqueue header and footer styles from the CSS folder
 function enqueue_custom_styles()
 {
+  wp_enqueue_style('global-style', get_stylesheet_directory_uri() . '/assets/css/global.css');
   wp_enqueue_style('header-style', get_stylesheet_directory_uri() . '/assets/css/header.css');
   wp_enqueue_style('footer-style', get_stylesheet_directory_uri() . '/assets/css/footer.css');
+  wp_enqueue_style('homepage-style', get_stylesheet_directory_uri() . '/assets/css/homepage.css');
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
