@@ -30,6 +30,56 @@ get_header();
   </div>
 </section>
 
+<!-- Logos Section -->
+<section class="logos-section">
+  <div class="scrn-container-small">
+    <div class="logos-container">
+      <img src="/wp-content/uploads/2025/03/Travelpro_Logo-1.png" alt="Logo-travel">
+      <img src="/wp-content/uploads/2025/03/americatools-1.png" alt="Logo-america">
+      <img src="/wp-content/uploads/2025/03/Bum_Seating_Logo_Black-1.png" alt="Logo-bum">
+      <img src="/wp-content/uploads/2025/03/Grand-home-furnishing-1.png" alt="Logo-grand">
+      <img src="/wp-content/uploads/2025/03/WhatsApp_Image_2024-12-09_at_15.34.26-Photoroom_2e9977fa-41bf-4afd-937b-2381e72b51fb_250x@2x-1.png" alt="Logo-glow">
+      <img src="/wp-content/uploads/2025/03/AMI_Logo_Badge-1.png" alt="Logo-american">
+      <img src="/wp-content/uploads/2025/03/images-1.png" alt="Logo-bla">
+    </div>
+  </div>
+</section>
+
+<!-- Travelpro Casestudy Section -->
+<div class="travelpro-section">
+  <section class="case-study-card">
+    <div class="gradient-overlay"></div>
+    <div class="travelpro-container">
+      <div class="image-wrapper">
+        <img src="/wp-content/uploads/2025/03/Mask-group.png" alt="Travelpro-Case-Study">
+      </div>
+
+      <div class="content-wrapper">
+        <div class="travel-pro-img">
+          <img src="/wp-content/uploads/2025/03/travelpro-1.png" alt="Travelpro-logo">
+          <p>30% Bounce Rate Reduction with Asklo’s Interactive Product Page FAQ Chatbot</p>
+        </div>
+
+        <section class="stats-section">
+          <p class="highlight-text">30%</p>
+          <p class="stats-text">Decrease in bounce rate from product pages</p>
+        </section>
+
+        <hr class="divider">
+
+        <section class="stats-section">
+          <p class="highlight-text">43k+</p>
+          <p class="-text">Unique users engaged with Asklo on product pages</p>
+        </section>
+
+        <div class="footer-link">
+          <a href="#">READ FULL CASE STUDY<i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
 <!-- Pricing Section -->
 <section class="pricing-section">
   <div class="scrn-container-small">
@@ -40,7 +90,7 @@ get_header();
 
     <div class="pricing-table">
       <div class="pricing-left-item">
-        <div class="pricing-features-column">
+        <div class="pricing-features-column pay-as-you-go">
           <div class="plan-header">
             <h3>Features</h3>
           </div>
@@ -180,8 +230,8 @@ get_header();
           </div>
         </div>
         <!-- Free Plan Column -->
-        <div class="pricing-plan-column">
-          <div class="plan-header pay-as-you-go">
+        <div class="pricing-plan-column pay-as-you-go">
+          <div class="plan-header">
             <span class="plan-type">PAY AS YOU GO</span>
             <h4 class="plan-name">Free</h4>
             <div class="plan-price">

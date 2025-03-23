@@ -20,7 +20,7 @@
   <meta charset="<?php bloginfo('charset'); ?>">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Athos a merchandising, and personalization platform built exclusively for ecommerce">
-  <link rel="canonical" href="https://yourwebsite.com/current-page-url">
+  <link rel="canonical" href="https://localhost.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <title><?php wp_title('|', true, 'right'); ?> <?php bloginfo('name'); ?></title>
 
