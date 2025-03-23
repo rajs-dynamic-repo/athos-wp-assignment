@@ -6,9 +6,9 @@
 
 body {
   font-family: "Poppins", sans-serif;
-  --whitecolor: #FFF;
-  --primarycolor: #1C1A9A;
-  --neon-green: #B2DF1F;
+  --whitecolor: #fff;
+  --primarycolor: #1c1a9a;
+  --neon-green: #b2df1f;
 }
 
 .scrn-container {
@@ -18,7 +18,7 @@ body {
 }
 
 .scrn-container-small {
-  max-width: 1050px;
+  max-width: 1100px;
   margin: 0 auto;
   width: 100%;
 }

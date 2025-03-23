@@ -51,7 +51,7 @@ get_header();
     <div class="gradient-overlay"></div>
     <div class="travelpro-container">
       <div class="image-wrapper">
-        <img src="/wp-content/uploads/2025/03/Mask-group.png" alt="Travelpro-Case-Study">
+        <img src="/wp-content/uploads/2025/03/Mask.webp" alt="Travelpro-Case-Study">
       </div>
 
       <div class="content-wrapper">
@@ -65,7 +65,7 @@ get_header();
           <p class="stats-text">Decrease in bounce rate from product pages</p>
         </section>
 
-        <hr class="divider">
+        <hr class="stats-divider">
 
         <section class="stats-section">
           <p class="highlight-text">43k+</p>
@@ -79,6 +79,118 @@ get_header();
     </div>
   </section>
 </div>
+
+<!-- Q&A Boost Conversion Section -->
+<section class="boost-conversion-section">
+  <div class="scrn-container-small">
+    <div class="qna-heading">
+      <h2> Automatically answer customer questions on product pages to
+        <span class="boost-highlight">boost conversions</span>
+      </h2>
+    </div>
+    <div class="boost-conversion-container">
+      <div class="qna-container">
+        <div class="qna-text">
+          <h3>Engage shoppers with live Q&A on product pages</h3>
+          <p>
+            Create a deeply engaging Q&A experience on product pages by resolving queries in that peak moment of interest.
+          </p>
+          <ul>
+            <li>Show Q&A on product pages</li>
+            <li>Fine-tune the tone and branding</li>
+            <li>Respond fluently in multiple languages</li>
+          </ul>
+        </div>
+        <div class="qna-image">
+          <img src="/wp-content/uploads/2025/03/Group-1.webp" alt="Live Q&A on product page" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Benefits Card Section -->
+<section class="benefits-section">
+  <div class="scrn-container-small">
+    <div class="benefits-container">
+      <h2 class="benefits-heading">Lorem <span class="highlight">Ipsum</span></h2>
+      <div class="benefits-cards">
+        <div class="benefit-card">
+          <div class="benefit-top">
+            <div class="benefit-icon">
+              <img src="/wp-content/uploads/2025/03/Group-7106.png" alt="Cart Icon" />
+            </div>
+          </div>
+          <div class="benefit-bottom">
+            <h3>Live FAQs for Faster Checkout</h3>
+            <p>
+              Our platform employs advanced machine learning algorithms to
+              understand user preferences, delivering personalized content and
+              recommendations.
+            </p>
+          </div>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-top">
+            <div class="benefit-icon">
+              <img src="/wp-content/uploads/2025/03/Group-7107.png" alt="Headset Icon" />
+            </div>
+          </div>
+          <div class="benefit-bottom">
+            <h3>Cut Down Support Requests</h3>
+            <p>
+              Our user-friendly interface ensures a smooth experience, allowing
+              you to harness the power of AI without a steep learning curve.
+            </p>
+          </div>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-top">
+            <div class="benefit-icon">
+              <img src="/wp-content/uploads/2025/03/Group-7108.png" alt="Customer Icon" />
+            </div>
+          </div>
+          <div class="benefit-bottom">
+            <h3>Boost Customer Satisfaction</h3>
+            <p>
+              Gain valuable insights into user behavior, model performance, and
+              more. Our platform provides actionable data to refine your machine
+              learning models.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- App Integration Section -->
+<section class="integration-section">
+  <div class="scrn-container-small">
+    <div class="integration-container">
+      <h2 class="integration-heading">
+        <span class="highlight">Integrates</span> with all ecommerce platforms
+      </h2>
+      <p class="integration-subtext">
+        Simply sign up, create a widget, and copy and paste snippets of code on your website.
+      </p>
+      <div class="integration-cards">
+        <div class="integration-card">
+          <img src="/wp-content/uploads/2025/03/shopify-1.png" alt="Shopify Logo" class="integration-logo" />
+          <h3>Shopify</h3>
+          <p>One click integration</p>
+          <a href="#" class="integration-link">START FREE ON APP STORE <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="integration-card">
+          <img src="/wp-content/uploads/2025/03/other-platforms-copy-1.png" alt="Other Platforms" class="integration-logo" />
+          <h3>Other Platforms</h3>
+          <p>Currently, it works best with Klaviyo integration. For others, seamless integration is coming soon.</p>
+          <a href="#" class="integration-link">START FREE <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- Pricing Section -->
 <section class="pricing-section">
@@ -107,9 +219,7 @@ get_header();
 
             <div class="feature-item">
               <div class="feature-icon">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17 8L21 12M21 12L17 16M21 12H3" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <img src="/wp-content/uploads/2025/03/image-46.png" alt="Image" />
               </div>
               <span>Integration with Shopify Platform</span>
             </div>
@@ -242,10 +352,10 @@ get_header();
           </div>
           <div class="plan-features">
             <div class="plan-feature">
-              <span class="check-icon">✓</span>
+              <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
             </div>
             <div class="plan-feature">
-              <span class="check-icon">✓</span>
+              <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
             </div>
             <div class="plan-feature">
               <span>Available through Klevu</span>
@@ -254,19 +364,19 @@ get_header();
               <span>3</span>
             </div>
             <div class="plan-feature">
-              <span class="check-icon">✓</span>
+              <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
             </div>
             <div class="plan-feature">
-              <span class="check-icon">✓</span>
+              <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
             </div>
             <div class="plan-feature">
               <span>Email</span>
             </div>
             <div class="plan-feature">
-              <span class="check-icon">✓</span>
+              <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
             </div>
             <div class="plan-feature">
-              <span class="check-icon">✓</span>
+              <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
             </div>
             <div class="plan-feature">
               <span></span>
@@ -300,10 +410,10 @@ get_header();
 
             <div class="plan-features">
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
                 <span>Available through Klevu</span>
@@ -312,10 +422,10 @@ get_header();
                 <span>3</span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
                 <span>Email</span>
@@ -347,15 +457,15 @@ get_header();
                 <span class="price">$149</span><span class="period">/mo</span>
               </div>
               <p class="plan-limit">2000 requests/mo</p>
-              <a href="#" class="trial-button">START 7-DAY TRIAL</a>
+              <a href="#" class="trial-button price-btn-sec">START 7-DAY TRIAL</a>
             </div>
 
             <div class="plan-features">
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
                 <span>Available through Klevu</span>
@@ -364,19 +474,19 @@ get_header();
                 <span>3</span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
                 <span>Email</span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
                 <span></span>
@@ -404,10 +514,10 @@ get_header();
 
             <div class="plan-features">
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
                 <span>Available through Klevu</span>
@@ -416,28 +526,28 @@ get_header();
                 <span>10</span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
                 <span>Email</span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
               <div class="plan-feature">
-                <span class="check-icon">✓</span>
+                <span class="check-icon"><i class="fa-solid fa-circle-check"></i></span>
               </div>
             </div>
           </div>
@@ -449,5 +559,176 @@ get_header();
     </div>
 </section>
 
+<!-- Enterprise Section -->
+<section class="enterprise-section">
+  <div class="enterprise-container">
+    <div class="enterprise-content">
+      <h2>Enterprise Plans</h2>
+      <p>Running a high volume store?</p>
+      <p>Contact us for custom plans and enterprise options.</p>
+      <a href="#" class="demo-button">SCHEDULE DEMO</a>
+    </div>
+    <div class="enterprise-image">
+      <img src="/wp-content/uploads/2025/03/Group-2.webp" alt="Enterprise Dashboard">
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Accordion Section -->
+<section class="faq-section">
+  <div class="faq-container">
+    <h2 class="faq-title">Frequently Asked <span class="highlight">Questions</span></h2>
+
+    <div class="accordion">
+      <!-- First item (open by default) -->
+      <div class="accordion-item active">
+        <div class="accordion-header">
+          <h3>What is a request?</h3>
+          <button class="accordion-toggle minus">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+        <div class="accordion-content" style="display: block;">
+          <p>The Askio AI widget is a compact user interface that seamlessly integrates into your store's product pages. It enables shoppers to ask questions about the specific product they are viewing. Using advanced Generative AI technology, Askio AI scans the contents of the product page to provide answers to shoppers' inquiries to the best of its ability.</p>
+        </div>
+      </div>
+
+      <!-- Other items (closed by default) -->
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h3>How does Askio AI generate answers?</h3>
+          <button class="accordion-toggle plus">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+        <div class="accordion-content">
+          <p></p>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h3>Can I provide my own answers to shopper questions?</h3>
+          <button class="accordion-toggle plus">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+        <div class="accordion-content">
+          <p></p>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h3>Does Askio require an annual contract?</h3>
+          <button class="accordion-toggle plus">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+        <div class="accordion-content">
+          <p></p>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h3>What happens after the 7-day trial ends?</h3>
+          <button class="accordion-toggle plus">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+        <div class="accordion-content">
+          <p></p>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h3>How does the Pay-as-you-go plan work?</h3>
+          <button class="accordion-toggle plus">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+        <div class="accordion-content">
+          <p></p>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h3>What happens if I exceed the usage limit in a Fixed Monthly plan?</h3>
+          <button class="accordion-toggle plus">
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+        <div class="accordion-content">
+          <p></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Askio CTA Section  -->
+<section class="askio-cta-section">
+  <div class="cta-container">
+    <div class="cta-content">
+      <h2 class="cta-title">Get <span class="highlight">Askio AI</span> to instantly answer customers questions</h2>
+      <p class="cta-text">Start using Askio AI for free and create an engaging experience for your shoppers on product pages.</p>
+      <a href="#" class="cta-button">START FREE</a>
+    </div>
+  </div>
+  <div class="cta-image-container">
+    <img src="/wp-content/uploads/2025/03/Group-3.webp" alt="Askio AI in action" class="cta-image">
+  </div>
+</section>
+
+<!-- Script for FAQ Accordion -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const accordionItems = document.querySelectorAll('.accordion-item');
+
+    accordionItems.forEach(item => {
+      const header = item.querySelector('.accordion-header');
+      const content = item.querySelector('.accordion-content');
+      const toggle = item.querySelector('.accordion-toggle');
+
+      header.addEventListener('click', () => {
+        // Close all other items
+        accordionItems.forEach(otherItem => {
+          if (otherItem !== item) {
+            otherItem.classList.remove('active');
+            otherItem.querySelector('.accordion-content').style.display = 'none';
+            const otherToggle = otherItem.querySelector('.accordion-toggle');
+            otherToggle.classList.remove('minus');
+            otherToggle.classList.add('plus');
+          }
+        });
+
+        // Toggle current item
+        const isActive = item.classList.contains('active');
+
+        if (isActive) {
+          item.classList.remove('active');
+          content.style.display = 'none';
+          toggle.classList.remove('minus');
+          toggle.classList.add('plus');
+        } else {
+          item.classList.add('active');
+          content.style.display = 'block';
+          toggle.classList.remove('plus');
+          toggle.classList.add('minus');
+        }
+      });
+    });
+  });
+</script>
 
 <?php get_footer(); ?>
