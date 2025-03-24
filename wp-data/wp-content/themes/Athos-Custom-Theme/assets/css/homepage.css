@@ -605,6 +605,10 @@
   text-decoration: none;
   margin-top: auto;
 }
+.integration-link:hover {
+  color: #393939;
+  transform: translateY(-2px);
+}
 
 @media (max-width: 767px) {
   .integration-section {

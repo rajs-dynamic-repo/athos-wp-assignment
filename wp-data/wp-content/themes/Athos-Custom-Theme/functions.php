@@ -35,5 +35,32 @@ function enqueue_custom_styles()
   wp_enqueue_style('header-style', get_stylesheet_directory_uri() . '/assets/css/header.css');
   wp_enqueue_style('footer-style', get_stylesheet_directory_uri() . '/assets/css/footer.css');
   wp_enqueue_style('homepage-style', get_stylesheet_directory_uri() . '/assets/css/homepage.css');
+  wp_enqueue_style('contactUs-style', get_stylesheet_directory_uri() . '/assets/css/contact-us.css');
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
+
+
+// This Function is to Process the form submissions
+function process_custom_form()
+{
+  if (isset($_POST['custom_form_submit'])) {
+    $to = 'rajdelegend@gmail.com';
+    $subject = 'New Audit Request from Website';
+
+    $body = "First Name: " . sanitize_text_field($_POST['firstName']) . "\n";
+    $body .= "Last Name: " . sanitize_text_field($_POST['lastName']) . "\n";
+    $body .= "Email: " . sanitize_email($_POST['email']) . "\n";
+    $body .= "Phone: " . sanitize_text_field($_POST['phone']) . "\n";
+    $body .= "Company: " . sanitize_text_field($_POST['company']) . "\n";
+    $body .= "Website: " . esc_url_raw($_POST['website']) . "\n";
+
+    $headers = array('Content-Type: text/html; charset=UTF-8');
+
+    wp_mail($to, $subject, $body, $headers);
+
+    // Redirect to same page with success parameter
+    wp_redirect(add_query_arg('form_success', 'true', wp_get_referer()));
+    exit;
+  }
+}
+add_action('init', 'process_custom_form');
