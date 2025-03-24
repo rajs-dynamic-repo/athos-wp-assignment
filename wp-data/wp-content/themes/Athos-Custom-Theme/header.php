@@ -44,7 +44,13 @@
           </span>
           <li class="nav-buttons">
             <a href="#" class="btn secondary">Login</a>
-            <a href="#" class="btn primary">START FREE</a>
+            <a href="#" class="btn primary animated-btn">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              START FREE
+            </a>
           </li>
           <label for="check" class="open-menu" aria-label="Open Menu"><i class="fas fa-bars"></i></label>
         </ul>
