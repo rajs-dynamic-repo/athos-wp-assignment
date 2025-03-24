@@ -1,4 +1,3 @@
-
 .footer {
   background: #f9f9f9;
   padding: 20px 40px 94px;
@@ -88,6 +87,10 @@
 }
 
 @media (max-width: 767px) {
+  .footer {
+    padding: 20px 20px 94px;
+  }
+
   .footer-row-up {
     flex-direction: column;
     align-items: flex-start;

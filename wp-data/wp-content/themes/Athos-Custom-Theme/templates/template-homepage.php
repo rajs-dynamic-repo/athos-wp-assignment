@@ -567,7 +567,12 @@ get_header();
       <h2>Enterprise Plans</h2>
       <p>Running a high volume store?</p>
       <p>Contact us for custom plans and enterprise options.</p>
-      <a href="#" class="demo-button">SCHEDULE DEMO</a>
+      <a href="#" class="demo-button animated-btn"> <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        SCHEDULE DEMO
+      </a>
     </div>
     <div class="enterprise-image">
       <img src="/wp-content/uploads/2025/03/Group-2.webp" alt="Enterprise Dashboard">
