@@ -13,22 +13,23 @@ get_header();
   <div class="scrn-container">
     <div class="hero-content">
       <div class="hero-text">
-        <div class="hero-subtitle">Asklo: Product Questions & Answers</div>
-        <h1 class="hero-title">Turn visitors into shoppers <br>with <span class="highlight">Asklo AI assistant</span></h1>
-        <p class="hero-description">Asklo AI assistant resolves your customers' queries on product pages to engage and convert them faster</p>
+        <div class="hero-subtitle"><?php _e('Asklo: Product Questions & Answers', 'Athos Commerce'); ?></div>
+        <h1 class="hero-title"><?php printf(__('Turn visitors into shoppers <br>with <span class="highlight">%s</span>', 'Athos Commerce'), __('Asklo AI assistant', 'Athos Commerce')); ?></h1>
+        <p class="hero-description"><?php _e('Asklo AI assistant resolves your customers\' queries on product pages to engage and convert them faster', 'Athos Commerce'); ?></p>
         <div class="hero-buttons">
-          <a href="#" class="start-free-btn">START FREE</a>
+          <a href="#" class="start-free-btn"><?php _e('START FREE', 'Athos Commerce'); ?></a>
           <a href="#" class="shopify-btn">
-            <img src="/wp-content/uploads/2025/03/Group-7003.png" alt="Find it on the Shopify App Store">
+            <img src="/wp-content/uploads/2025/03/Group-7003.png" alt="<?php esc_attr_e('Find it on the Shopify App Store', 'Athos Commerce'); ?>">
           </a>
         </div>
       </div>
       <div class="hero-image">
-        <img src="/wp-content/uploads/2025/03/Group-7109.png" alt="Asklo AI Assistant Demo">
+        <img src="/wp-content/uploads/2025/03/Group-7109.png" alt="<?php esc_attr_e('Asklo AI Assistant Demo', 'Athos Commerce'); ?>">
       </div>
     </div>
   </div>
 </section>
+
 
 <!-- Logos Section -->
 <section class="logos-section">

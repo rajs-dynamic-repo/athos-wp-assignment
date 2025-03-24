@@ -64,3 +64,14 @@ function process_custom_form()
   }
 }
 add_action('init', 'process_custom_form');
+
+// Setting up function to register polylang translations,
+// this is used to translate the custom template strings.
+if (function_exists('pll_register_string')) {
+  pll_register_string('asklo_hero_subtitle', 'Asklo: Product Questions & Answers', 'Athos Commerce');
+  pll_register_string('asklo_hero_title', 'Turn visitors into shoppers with Asklo AI assistant', 'Athos Commerce');
+  pll_register_string('asklo_hero_description', 'Asklo AI assistant resolves your customers\' queries on product pages to engage and convert them faster', 'Athos Commerce');
+  pll_register_string('asklo_start_free', 'START FREE', 'Athos Commerce');
+  pll_register_string('asklo_shopify_alt', 'Find it on the Shopify App Store', 'Athos Commerce');
+  pll_register_string('asklo_demo_alt', 'Asklo AI Assistant Demo', 'Athos Commerce');
+}
