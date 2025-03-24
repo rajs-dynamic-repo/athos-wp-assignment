@@ -12,4 +12,35 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.php [L]
 </IfModule>
 
+# Disable Directory Browsing
+Options -Indexes
+
+# Disable XML-RPC
+<Files xmlrpc.php>
+Order Deny,Allow
+Deny from all
+</Files>
+
+<Files wp-config.php>
+order allow,deny
+deny from all
+</Files>
+
+
+# Enable Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
+</IfModule>
+
+# Cache Static Resources
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+</IfModule>
+
+
+
 # END WordPress

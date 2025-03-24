@@ -11,6 +11,9 @@
  */
 
 
+// Remove WordPress version number from the header to improve security  
+remove_action('wp_head', 'wp_generator');
+
 // Following function sets the Content Security Policy (CSP) headers for enhanced security. *
 function custom_csp_headers()
 {
@@ -75,3 +78,23 @@ if (function_exists('pll_register_string')) {
   pll_register_string('asklo_shopify_alt', 'Find it on the Shopify App Store', 'Athos Commerce');
   pll_register_string('asklo_demo_alt', 'Asklo AI Assistant Demo', 'Athos Commerce');
 }
+
+// Function for Sitemap
+function add_sitemap_rewrite_rule()
+{
+  add_rewrite_rule('sitemap\.xml$', 'wp-content/themes/Athos-Custom-Theme/sitemap.php', 'top');
+}
+add_action('init', 'add_sitemap_rewrite_rule');
+
+
+// Function for Robots.txt 
+function custom_robots_txt($output, $public)
+{
+  $output = "User-agent: *\n";
+  $output .= "Disallow: /wp-admin/\n";
+  $output .= "Disallow: /wp-includes/\n";
+  $output .= "Allow: /wp-content/uploads/\n";
+  $output .= "Sitemap: " . home_url('/sitemap.xml') . "\n";
+  return $output;
+}
+add_filter('robots_txt', 'custom_robots_txt', 10, 2);
