@@ -1,5 +1,23 @@
 # athos-wp-assignment
 
+## 🚀 How to Run This WordPress Project on Local
+
+1️⃣ Clone the Repository
+
+2️⃣ Start Docker Containers
+
+3️⃣ Import Database
+
+4️⃣ Update wp_options Table (If Needed)
+If the site doesn't load properly, update site URL via MySQL:: ` UPDATE wp_options SET option_value = 'http://localhost:8000' WHERE option_name IN ('siteurl', 'home');`
+
+5️⃣ Login to WordPress
+URL: http://localhost:8000/wp-admin
+
+User: athos_raj
+
+Pass: athos_raj_athos_23
+
 ## 🐳 WordPress Setup in Docker 
 > Why Docker?
 Ensures a consistent, portable, and isolated development environment without affecting the local system.
