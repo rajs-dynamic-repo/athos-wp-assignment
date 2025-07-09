@@ -1,0 +1,468 @@
+{
+  "keys": [
+    {
+      "key": "login1",
+      "translations": {
+        "en_us": "Login",
+        "es_es": "Iniciar sesión",
+        "fr_ca": "Connexion"
+      }
+    },
+    {
+      "key": "logout2",
+      "translations": {
+        "en_us": "Logout",
+        "es_es": "Cerrar sesión",
+        "fr_ca": "Déconnexion"
+      }
+    },
+    {
+      "key": "signup",
+      "translations": {
+        "en_us": "Sign Up",
+        "es_es": "Registrarse",
+        "fr_ca": "S'inscrire"
+      }
+    },
+    {
+      "key": "dashboard",
+      "translations": {
+        "en_us": "Dashboard",
+        "es_es": "Panel de control",
+        "fr_ca": "Tableau de bord"
+      }
+    },
+    {
+      "key": "profile",
+      "translations": {
+        "en_us": "Profile",
+        "es_es": "Perfil",
+        "fr_ca": "Profil"
+      }
+    },
+    {
+      "key": "settings",
+      "translations": {
+        "en_us": "Settings",
+        "es_es": "Configuración",
+        "fr_ca": "Paramètres"
+      }
+    },
+    {
+      "key": "save",
+      "translations": {
+        "en_us": "Save",
+        "es_es": "Guardar",
+        "fr_ca": "Enregistrer"
+      }
+    },
+    {
+      "key": "cancel",
+      "translations": {
+        "en_us": "Cancel",
+        "es_es": "Cancelar",
+        "fr_ca": "Annuler"
+      }
+    },
+    {
+      "key": "delete",
+      "translations": {
+        "en_us": "Delete",
+        "es_es": "Eliminar",
+        "fr_ca": "Supprimer"
+      }
+    },
+    {
+      "key": "edit",
+      "translations": {
+        "en_us": "Edit",
+        "es_es": "Editar",
+        "fr_ca": "Modifier"
+      }
+    },
+    {
+      "key": "create",
+      "translations": {
+        "en_us": "Create",
+        "es_es": "Crear",
+        "fr_ca": "Créer"
+      }
+    },
+    {
+      "key": "search",
+      "translations": {
+        "en_us": "Search",
+        "es_es": "Buscar",
+        "fr_ca": "Rechercher"
+      }
+    },
+    {
+      "key": "filter",
+      "translations": {
+        "en_us": "Filter",
+        "es_es": "Filtrar",
+        "fr_ca": "Filtrer"
+      }
+    },
+    {
+      "key": "export",
+      "translations": {
+        "en_us": "Export",
+        "es_es": "Exportar",
+        "fr_ca": "Exporter"
+      }
+    },
+    {
+      "key": "import",
+      "translations": {
+        "en_us": "Import",
+        "es_es": "Importar",
+        "fr_ca": "Importer"
+      }
+    },
+    {
+      "key": "download",
+      "translations": {
+        "en_us": "Download",
+        "es_es": "Descargar",
+        "fr_ca": "Télécharger"
+      }
+    },
+    {
+      "key": "upload",
+      "translations": {
+        "en_us": "Upload",
+        "es_es": "Subir",
+        "fr_ca": "Téléverser"
+      }
+    },
+    {
+      "key": "preview",
+      "translations": {
+        "en_us": "Preview",
+        "es_es": "Vista previa",
+        "fr_ca": "Aperçu"
+      }
+    },
+    {
+      "key": "publish",
+      "translations": {
+        "en_us": "Publish",
+        "es_es": "Publicar",
+        "fr_ca": "Publier"
+      }
+    },
+    {
+      "key": "draft",
+      "translations": {
+        "en_us": "Draft",
+        "es_es": "Borrador",
+        "fr_ca": "Brouillon"
+      }
+    },
+    {
+      "key": "analytics",
+      "translations": {
+        "en_us": "Analytics",
+        "es_es": "Analíticas",
+        "fr_ca": "Analytiques"
+      }
+    },
+    {
+      "key": "reports",
+      "translations": {
+        "en_us": "Reports",
+        "es_es": "Informes",
+        "fr_ca": "Rapports"
+      }
+    },
+    {
+      "key": "notifications",
+      "translations": {
+        "en_us": "Notifications",
+        "es_es": "Notificaciones",
+        "fr_ca": "Notifications"
+      }
+    },
+    {
+      "key": "help",
+      "translations": {
+        "en_us": "Help",
+        "es_es": "Ayuda",
+        "fr_ca": "Aide"
+      }
+    },
+    {
+      "key": "support",
+      "translations": {
+        "en_us": "Support",
+        "es_es": "Soporte",
+        "fr_ca": "Support"
+      }
+    },
+    {
+      "key": "billing",
+      "translations": {
+        "en_us": "Billing",
+        "es_es": "Facturación",
+        "fr_ca": "Facturation"
+      }
+    },
+    {
+      "key": "subscription",
+      "translations": {
+        "en_us": "Subscription",
+        "es_es": "Suscripción",
+        "fr_ca": "Abonnement"
+      }
+    },
+    {
+      "key": "upgrade",
+      "translations": {
+        "en_us": "Upgrade",
+        "es_es": "Actualizar",
+        "fr_ca": "Mettre à niveau"
+      }
+    },
+    {
+      "key": "downgrade",
+      "translations": {
+        "en_us": "Downgrade",
+        "es_es": "Degradar",
+        "fr_ca": "Rétrograder"
+      }
+    },
+    {
+      "key": "trial",
+      "translations": {
+        "en_us": "Trial",
+        "es_es": "Prueba",
+        "fr_ca": "Essai"
+      }
+    },
+    {
+      "key": "free",
+      "translations": {
+        "en_us": "Free",
+        "es_es": "Gratis",
+        "fr_ca": "Gratuit"
+      }
+    },
+    {
+      "key": "premium",
+      "translations": {
+        "en_us": "Premium",
+        "es_es": "Premium",
+        "fr_ca": "Premium"
+      }
+    },
+    {
+      "key": "enterprise",
+      "translations": {
+        "en_us": "Enterprise",
+        "es_es": "Empresa",
+        "fr_ca": "Entreprise"
+      }
+    },
+    {
+      "key": "team",
+      "translations": {
+        "en_us": "Team",
+        "es_es": "Equipo",
+        "fr_ca": "Équipe"
+      }
+    },
+    {
+      "key": "invite",
+      "translations": {
+        "en_us": "Invite",
+        "es_es": "Invitar",
+        "fr_ca": "Inviter"
+      }
+    },
+    {
+      "key": "permissions",
+      "translations": {
+        "en_us": "Permissions",
+        "es_es": "Permisos",
+        "fr_ca": "Permissions"
+      }
+    },
+    {
+      "key": "admin",
+      "translations": {
+        "en_us": "Admin",
+        "es_es": "Administrador",
+        "fr_ca": "Administrateur"
+      }
+    },
+    {
+      "key": "user",
+      "translations": {
+        "en_us": "User",
+        "es_es": "Usuario",
+        "fr_ca": "Utilisateur"
+      }
+    },
+    {
+      "key": "guest",
+      "translations": {
+        "en_us": "Guest",
+        "es_es": "Invitado",
+        "fr_ca": "Invité"
+      }
+    },
+    {
+      "key": "welcome",
+      "translations": {
+        "en_us": "Welcome",
+        "es_es": "Bienvenido",
+        "fr_ca": "Bienvenue"
+      }
+    },
+    {
+      "key": "loading",
+      "translations": {
+        "en_us": "Loading...",
+        "es_es": "Cargando...",
+        "fr_ca": "Chargement..."
+      }
+    },
+    {
+      "key": "error",
+      "translations": {
+        "en_us": "Error",
+        "es_es": "Error",
+        "fr_ca": "Erreur"
+      }
+    },
+    {
+      "key": "success",
+      "translations": {
+        "en_us": "Success",
+        "es_es": "Éxito",
+        "fr_ca": "Succès"
+      }
+    },
+    {
+      "key": "warning",
+      "translations": {
+        "en_us": "Warning",
+        "es_es": "Advertencia",
+        "fr_ca": "Avertissement"
+      }
+    },
+    {
+      "key": "confirm",
+      "translations": {
+        "en_us": "Confirm",
+        "es_es": "Confirmar",
+        "fr_ca": "Confirmer"
+      }
+    },
+    {
+      "key": "yes",
+      "translations": {
+        "en_us": "Yes",
+        "es_es": "Sí",
+        "fr_ca": "Oui"
+      }
+    },
+    {
+      "key": "no",
+      "translations": {
+        "en_us": "No",
+        "es_es": "No",
+        "fr_ca": "Non"
+      }
+    },
+    {
+      "key": "next",
+      "translations": {
+        "en_us": "Next",
+        "es_es": "Siguiente",
+        "fr_ca": "Suivant"
+      }
+    },
+    {
+      "key": "previous",
+      "translations": {
+        "en_us": "Previous",
+        "es_es": "Anterior",
+        "fr_ca": "Précédent"
+      }
+    },
+    {
+      "key": "back",
+      "translations": {
+        "en_us": "Back",
+        "es_es": "Atrás",
+        "fr_ca": "Retour"
+      }
+    },
+    {
+      "key": "continue",
+      "translations": {
+        "en_us": "Continue",
+        "es_es": "Continuar",
+        "fr_ca": "Continuer"
+      }
+    },
+    {
+      "key": "finish",
+      "translations": {
+        "en_us": "Finish",
+        "es_es": "Finalizar",
+        "fr_ca": "Terminer"
+      }
+    },
+    {
+      "key": "close",
+      "translations": {
+        "en_us": "Close",
+        "es_es": "Cerrar",
+        "fr_ca": "Fermer"
+      }
+    },
+    {
+      "key": "open",
+      "translations": {
+        "en_us": "Open",
+        "es_es": "Abrir",
+        "fr_ca": "Ouvrir"
+      }
+    },
+    {
+      "key": "refresh",
+      "translations": {
+        "en_us": "Refresh",
+        "es_es": "Actualizar",
+        "fr_ca": "Actualiser"
+      }
+    },
+    {
+      "key": "sync",
+      "translations": {
+        "en_us": "Sync",
+        "es_es": "Sincronizar",
+        "fr_ca": "Synchroniser"
+      }
+    },
+    {
+      "key": "connect",
+      "translations": {
+        "en_us": "Connect",
+        "es_es": "Conectar",
+        "fr_ca": "Connecter"
+      }
+    },
+    {
+      "key": "disconnect",
+      "translations": {
+        "en_us": "Disconnect",
+        "es_es": "Desconectar",
+        "fr_ca": "Déconnecter"
+      }
+    }
+  ]
+}

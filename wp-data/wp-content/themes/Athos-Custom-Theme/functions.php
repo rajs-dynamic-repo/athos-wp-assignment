@@ -434,12 +434,10 @@ add_action('save_post', function ($post_id) {
     return;
   }
 
-  // Verify nonce
   if (!isset($_POST['translation_nonce']) || !wp_verify_nonce($_POST['translation_nonce'], 'save_translations')) {
     return;
   }
 
-  // Get the master JSON to know which fields should exist
   $master_json = get_option('translation_master_json', ['keys' => []]);
   $expected_keys = array_column($master_json['keys'], 'key');
 
