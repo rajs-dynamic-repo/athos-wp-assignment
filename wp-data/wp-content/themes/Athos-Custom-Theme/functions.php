@@ -101,196 +101,216 @@ function custom_robots_txt($output, $public)
 add_filter('robots_txt', 'custom_robots_txt', 10, 2);
 
 
-// Function for refined Console Translations output in JSON (Post Meta)
+// Remove a single top-level locale wrapper from data
+function unwrap_locale_wrapper($data)
+{
+  if (is_array($data) && count($data) === 1) {
+    $first_key = array_keys($data)[0];
+    if (preg_match('/^[a-z]{2}[-_][a-z]{2}$/i', $first_key)) {
+      return $data[$first_key];
+    }
+  }
+  return $data;
+}
+
 add_action('rest_api_init', function () {
-  register_rest_route('athos-console-translations/v1', '/locale/(?P<slug>[a-zA-Z0-9_-]+)', array(
+  register_rest_route('athos-console-translations/v1', '/locale/(?P<slug>[a-zA-Z0-9_\-]+)', array(
     'methods' => 'GET',
     'callback' => function ($data) {
-      $args = array(
-        'name'        => $data['slug'],
-        'post_type'   => 'console-translations',
-        'post_status' => 'publish',
-        'numberposts' => 1
-      );
-      $posts = get_posts($args);
-      if (empty($posts)) {
-        return new WP_Error('not_found', 'Translation not found', array('status' => 404));
+      $locale = strtolower($data['slug']);
+      $master = get_option('translation_master_json', []);
+      if (empty($master)) {
+        return new WP_Error('no_master', 'Master JSON (en_US) not found', array('status' => 500));
       }
-
-      $post_id = $posts[0]->ID;
-
-      // Get the master JSON to know which fields should exist
-      $master_json = get_option('translation_master_json', ['keys' => []]);
-      $expected_keys = array_column($master_json['keys'], 'key');
-
-      // Get translations directly from post meta
-      $clean_translations = array();
-
-      foreach ($expected_keys as $key) {
-        $value = get_post_meta($post_id, $key, true);
-        if (!empty($value)) {
-          $clean_translations[$key] = trim($value);
-        }
+      if ($locale === 'en_us') {
+        return unwrap_locale_wrapper($master);
       }
-
-      // Sort keys alphabetically for consistent output
-      ksort($clean_translations);
-
-      return $clean_translations;
+      $locale_data = get_option('translation_' . $locale . '_data', []);
+      $merged = merge_locale_into_master($master, $locale_data);
+      return unwrap_locale_wrapper($merged);
     },
     'permission_callback' => '__return_true'
   ));
 });
 
-// Step 2: Manage Master JSON
-add_action('admin_menu', function () {
-  add_submenu_page(
-    'edit.php?post_type=console-translations',
-    'Manage Translation Keys',
-    'Manage Keys',
-    'manage_options',
-    'manage-keys',
-    'render_manage_keys_page'
-  );
-});
-
-function render_manage_keys_page()
+// merge locale values into master structure
+function merge_locale_into_master($master, $locale_data)
 {
-  $master_json = get_option('translation_master_json', ['keys' => []]);
-  $message = '';
-
-  if ($_POST['master_json'] && check_admin_referer('manage_keys_action', 'manage_keys_nonce')) {
-    $result = process_translation_json(wp_unslash($_POST['master_json']));
-    if (is_wp_error($result)) {
-      $message = '<div class="error"><p>' . esc_html($result->get_error_message()) . '</p></div>';
+  $result = [];
+  foreach ($master as $key => $master_value) {
+    if (is_array($master_value)) {
+      $result[$key] = isset($locale_data[$key]) && is_array($locale_data[$key])
+        ? merge_locale_into_master($master_value, $locale_data[$key])
+        : merge_locale_into_master($master_value, []);
     } else {
-      update_option('translation_master_json', $result);
-      import_translations($result);
-      $message = '<div class="updated"><p>Keys and translations updated successfully!</p></div>';
+      $result[$key] = isset($locale_data[$key]) ? $locale_data[$key] : '';
     }
   }
-
-  if ($_POST['export_json'] && check_admin_referer('manage_keys_action', 'manage_keys_nonce')) {
-    header('Content-Type: application/json');
-    header('Content-Disposition: attachment; filename="translation_master.json"');
-    echo json_encode($master_json, JSON_PRETTY_PRINT);
-    exit;
-  }
-?>
-  <div class="wrap">
-    <h1>Manage Translation Keys</h1>
-    <?php echo $message; ?>
-    <form method="post">
-      <?php wp_nonce_field('manage_keys_action', 'manage_keys_nonce'); ?>
-      <p>Paste or edit the master JSON below. Format: {"keys": [{"key": "key_name", "translations": {"locale_slug": "value"}}]}</p>
-      <textarea name="master_json" rows="15" style="width:100%"><?php echo esc_textarea(json_encode($master_json, JSON_PRETTY_PRINT)); ?></textarea>
-      <input type="submit" value="Save and Sync" class="button button-primary">
-      <input type="submit" name="export_json" value="Export JSON" class="button">
-    </form>
-  </div>
-<?php
+  return $result;
 }
 
-// Step 3: Bulk Import Translations
-add_action('admin_menu', function () {
-  add_submenu_page(
-    'edit.php?post_type=console-translations',
-    'Import Translations',
-    'Import Translations',
-    'manage_options',
-    'import-translations',
-    'render_import_translations_page'
-  );
-});
+// Extract locale from filename (e.g., en_US.json -> en_US)
+function extract_locale_from_filename($filename)
+{
+  $basename = basename($filename);
+  if (preg_match('/^([a-z]{2}_[A-Z]{2})\.json$/', $basename, $matches)) {
+    return $matches[1];
+  }
+  return false;
+}
 
-// Handle download actions before page rendering
-add_action('admin_init', function () {
-  if (isset($_POST['download_excel_template']) && check_admin_referer('import_translations_action', 'import_translations_nonce')) {
-    download_excel_template();
+// Refactored import function
+function import_translations_auto($json_data, $locale)
+{
+  $data = json_decode($json_data, true);
+  if (json_last_error() !== JSON_ERROR_NONE) {
+    error_log('IMPORT ERROR: Invalid JSON for ' . $locale . ': ' . json_last_error_msg());
+    return new WP_Error('invalid_json', 'Invalid JSON format: ' . json_last_error_msg());
+  }
+  if (!is_array($data)) {
+    error_log('IMPORT ERROR: Not an array for ' . $locale);
+    return new WP_Error('invalid_structure', 'JSON must be an object/array');
   }
 
-  if (isset($_POST['export_to_excel']) && check_admin_referer('import_translations_action', 'import_translations_nonce')) {
-    export_translations_to_excel();
+  // Auto-detect and remove a single top-level locale wrapper
+  if (count($data) === 1) {
+    $first_key = array_keys($data)[0];
+    // If the first key looks like a locale (en-us, en_us, es-es, es_es, etc), unwrap it
+    if (preg_match('/^[a-z]{2}[-_][a-z]{2}$/i', $first_key)) {
+      $data = $data[$first_key];
+      error_log('IMPORT: Removed top-level locale wrapper "' . $first_key . '" for ' . $locale);
+    }
   }
 
-  if (isset($_POST['export_to_excel_native']) && check_admin_referer('import_translations_action', 'import_translations_nonce')) {
-    export_translations_to_excel_native();
+  if (strtolower($locale) === 'en_us') {
+    update_option('translation_master_json', $data);
+    update_option('translation_en_us_data', $data);
+    error_log('IMPORT: Saved en_us as master and en_us data: ' . print_r($data, true));
+  } else {
+    $master = get_option('translation_master_json', []);
+    if (empty($master)) {
+      error_log('IMPORT ERROR: No master JSON found when importing ' . $locale);
+      return new WP_Error('no_master', 'Master JSON (en_US) must be imported first.');
+    }
+    error_log('IMPORT: Filtering locale ' . $locale . ' with master: ' . print_r($master, true) . ' and locale data: ' . print_r($data, true));
+    $filtered = filter_locale_data_by_master($data, $master, $locale);
+    error_log('IMPORT: Filtered data for ' . $locale . ': ' . print_r($filtered, true));
+    update_option('translation_' . strtolower($locale) . '_data', $filtered);
   }
-});
 
-// Add AJAX actions for downloads
-add_action('wp_ajax_download_excel_template', 'download_excel_template');
-add_action('wp_ajax_export_translations_csv', 'export_translations_to_excel');
-add_action('wp_ajax_export_translations_excel', 'export_translations_to_excel_native');
+  $post_title = strtoupper($locale) . ' Translations';
+  $post_name = strtolower($locale);
+  $existing_post = get_page_by_path($post_name, OBJECT, 'console-translations');
+  if ($existing_post) {
+    $post_id = $existing_post->ID;
+    wp_update_post([
+      'ID' => $post_id,
+      'post_title' => $post_title,
+      'post_status' => 'publish'
+    ]);
+  } else {
+    $post_id = wp_insert_post([
+      'post_title' => $post_title,
+      'post_name' => $post_name,
+      'post_type' => 'console-translations',
+      'post_status' => 'publish'
+    ]);
+  }
+  return true;
+}
 
-function render_import_translations_page()
+// filter locale data to match master structure
+function filter_locale_data_by_master($locale_data, $master_data, $locale = '')
+{
+  $filtered = [];
+  foreach ($master_data as $key => $master_value) {
+    if (is_array($master_value)) {
+      $filtered[$key] = isset($locale_data[$key]) && is_array($locale_data[$key])
+        ? filter_locale_data_by_master($locale_data[$key], $master_value, $locale)
+        : filter_locale_data_by_master([], $master_value, $locale);
+    } else {
+      $filtered[$key] = isset($locale_data[$key]) ? $locale_data[$key] : '';
+      if (!isset($locale_data[$key])) {
+        error_log('FILTER: Missing key "' . $key . '" for locale ' . $locale . ', setting empty string.');
+      } else {
+        error_log('FILTER: Set key "' . $key . '" for locale ' . $locale . ' to value: ' . print_r($locale_data[$key], true));
+      }
+    }
+  }
+  return $filtered;
+}
+
+// Refactored import page
+function render_import_translations_page_auto()
 {
   $message = '';
-
-  // Handle JSON import (existing functionality)
-  if (isset($_FILES['translation_file']) && $_FILES['translation_file']['error'] === UPLOAD_ERR_OK && check_admin_referer('import_translations_action', 'import_translations_nonce')) {
-    $json_data = file_get_contents($_FILES['translation_file']['tmp_name']);
-    $result = process_translation_json($json_data);
-    if (is_wp_error($result)) {
-      $message = '<div class="error"><p>' . esc_html($result->get_error_message()) . '</p></div>';
+  if (isset($_FILES['locale_json_file']) && $_FILES['locale_json_file']['error'] === UPLOAD_ERR_OK && check_admin_referer('import_translations_action', 'import_translations_nonce')) {
+    $json_data = file_get_contents($_FILES['locale_json_file']['tmp_name']);
+    $filename = $_FILES['locale_json_file']['name'];
+    $locale = extract_locale_from_filename($filename);
+    if (!$locale) {
+      $message = '<div class="error"><p>Could not detect locale from filename. Use format en_US.json, es_ES.json, etc.</p></div>';
     } else {
-      update_option('translation_master_json', $result);
-      import_translations($result);
-      $message = '<div class="updated"><p>JSON translations imported successfully!</p></div>';
+      $result = import_translations_auto($json_data, $locale);
+      if (is_wp_error($result)) {
+        $message = '<div class="error"><p>Import failed: ' . esc_html($result->get_error_message()) . '</p></div>';
+      } else {
+        $message = '<div class="updated"><p>' . strtoupper($locale) . ' translations imported successfully!</p></div>';
+      }
     }
   }
-
-  // Handle Excel import (new functionality)
-  if (isset($_FILES['excel_file']) && $_FILES['excel_file']['error'] === UPLOAD_ERR_OK && check_admin_referer('import_translations_action', 'import_translations_nonce')) {
-    $result = process_translation_excel($_FILES['excel_file']['tmp_name'], $_FILES['excel_file']['name']);
-    if (is_wp_error($result)) {
-      $message = '<div class="error"><p>' . esc_html($result->get_error_message()) . '</p></div>';
-    } else {
-      update_option('translation_master_json', $result);
-      import_translations($result);
-      $message = '<div class="updated"><p>Excel translations imported successfully!</p></div>';
-    }
+  // Export logic
+  global $wpdb;
+  $posts = get_posts([
+    'post_type' => 'console-translations',
+    'post_status' => 'publish',
+    'numberposts' => -1
+  ]);
+  $available_locales = [];
+  foreach ($posts as $post) {
+    $available_locales[] = $post->post_name;
   }
-
-
 ?>
   <div class="wrap">
-    <h1>Import Translations</h1>
+    <h1>Translation Import/Export</h1>
     <?php echo $message; ?>
-
+    <div class="notice notice-info">
+      <p><strong>Upload a JSON file named like en_US.json, es_ES.json, etc. The system will auto-detect the locale and create/update the template.</strong></p>
+    </div>
     <div class="import-methods">
-      <!-- JSON Import Section (Existing) -->
       <div class="import-section">
-        <h2>Import from JSON</h2>
+        <h2>Import Locale JSON</h2>
         <form method="post" enctype="multipart/form-data">
           <?php wp_nonce_field('import_translations_action', 'import_translations_nonce'); ?>
-          <p>Upload a JSON file with translations. Format: {"keys": [{"key": "key_name", "translations": {"locale_slug": "value"}}]}</p>
-          <input type="file" name="translation_file" accept=".json">
-          <input type="submit" value="Import JSON" class="button button-primary">
+          <p>Upload a JSON file for a specific locale (filename must be en_US.json, es_ES.json, etc.):</p>
+          <p>
+            <input type="file" name="locale_json_file" accept=".json" required>
+          </p>
+          <p>
+            <input type="submit" value="Import JSON" class="button button-primary">
+          </p>
         </form>
       </div>
-
-      <!-- Excel Import Section (New) -->
       <div class="import-section">
-        <h2>Import from Excel</h2>
-        <form method="post" enctype="multipart/form-data">
+        <h2>Export Locale JSON</h2>
+        <p>Export existing translations to JSON format:</p>
+        <form method="post">
           <?php wp_nonce_field('import_translations_action', 'import_translations_nonce'); ?>
-          <p>Upload an Excel file (.xlsx, .xls) or CSV file with translations. First row should contain headers: Key, en_us, es_es, fr_ca</p>
-          <input type="file" name="excel_file" accept=".xlsx,.xls,.csv">
-          <input type="submit" value="Import Excel" class="button button-primary">
+          <p>
+            <label>Select Locale:</label><br>
+            <select name="export_locale" required>
+              <option value="">Choose locale...</option>
+              <?php foreach ($available_locales as $locale): ?>
+                <option value="<?php echo esc_attr($locale); ?>"><?php echo esc_html(strtoupper($locale)); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </p>
+          <p>
+            <input type="submit" value="Export JSON" class="button button-primary">
+          </p>
         </form>
-        <p><a href="<?php echo admin_url('admin-ajax.php?action=download_excel_template&_wpnonce=' . wp_create_nonce('import_translations_action')); ?>" class="button">Download Excel Template</a></p>
-      </div>
-
-      <!-- Export Section -->
-      <div class="import-section">
-        <h2>Export Translations</h2>
-        <p>Export current translations to Excel/CSV format for editing.</p>
-        <p><a href="<?php echo admin_url('admin-ajax.php?action=export_translations_csv&_wpnonce=' . wp_create_nonce('import_translations_action')); ?>" class="button button-primary">Export to CSV</a></p>
-        <p><a href="<?php echo admin_url('admin-ajax.php?action=export_translations_excel&_wpnonce=' . wp_create_nonce('import_translations_action')); ?>" class="button">Export to Excel (.xlsx)</a></p>
       </div>
     </div>
-
     <style>
       .import-methods {
         display: flex;
@@ -314,7 +334,8 @@ function render_import_translations_page()
         font-size: 18px;
       }
 
-      .import-section input[type="file"] {
+      .import-section input[type="file"],
+      .import-section select {
         margin: 10px 0;
         display: block;
       }
@@ -328,610 +349,266 @@ function render_import_translations_page()
 <?php
 }
 
-// Step 4: Replace main content area with Translation Editor
-add_action('add_meta_boxes', function () {
-  // Remove the default editor
-  remove_post_type_support('console-translations', 'editor');
-
-  // Add our custom translation editor as the main content
-  add_meta_box(
-    'translation_editor_main',
-    'Translation Editor',
-    'render_translation_editor_main',
-    'console-translations',
-    'normal',
-    'high'
+// Update the menu to use the import page
+add_action('admin_menu', function () {
+  add_submenu_page(
+    'edit.php?post_type=console-translations',
+    'Import Translations',
+    'Import Translations',
+    'manage_options',
+    'import-translations',
+    'render_import_translations_page_auto'
   );
 });
 
-function render_translation_editor_main($post)
-{
-  // Get the master JSON to know which fields should exist
-  $master_json = get_option('translation_master_json', ['keys' => []]);
-  $expected_keys = array_column($master_json['keys'], 'key');
+// Translation Editor Admin UI
+add_action('admin_menu', function () {
+  add_submenu_page(
+    'edit.php?post_type=console-translations',
+    'Translation Editor',
+    'Translation Editor',
+    'manage_options',
+    'translation-editor',
+    'render_translation_editor_page'
+  );
+});
 
-  // Get current values
-  $current_values = array();
-  foreach ($expected_keys as $key) {
-    $current_values[$key] = get_post_meta($post->ID, $key, true);
+function render_translation_editor_page()
+{
+  // Get all available locales
+  $posts = get_posts([
+    'post_type' => 'console-translations',
+    'post_status' => 'publish',
+    'numberposts' => -1
+  ]);
+  $available_locales = [];
+  foreach ($posts as $post) {
+    $available_locales[] = $post->post_name;
+  }
+  $selected_locale = isset($_GET['locale']) ? sanitize_text_field($_GET['locale']) : (count($available_locales) ? $available_locales[0] : '');
+  $is_master = strtolower($selected_locale) === 'en_us';
+
+  // save updates
+  $message = '';
+  if (isset($_POST['save_translations']) && check_admin_referer('translation_editor_action', 'translation_editor_nonce')) {
+    $new_data = json_decode(stripslashes($_POST['hierarchical_json']), true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      $message = '<div class="error"><p>Invalid JSON: ' . json_last_error_msg() . '</p></div>';
+    } else {
+      if ($is_master) {
+        update_option('translation_master_json', $new_data);
+        update_option('translation_en_us_data', $new_data);
+        // Sync structure for all other locales
+        foreach ($available_locales as $loc) {
+          if (strtolower($loc) !== 'en_us') {
+            $locale_data = get_option('translation_' . strtolower($loc) . '_data', []);
+            $filtered = filter_locale_data_by_master($locale_data, $new_data);
+            update_option('translation_' . strtolower($loc) . '_data', $filtered);
+          }
+        }
+        $message = '<div class="updated"><p>Master JSON and all locales updated!</p></div>';
+      } else {
+        // Only update values for existing keys
+        $master = get_option('translation_master_json', []);
+        $filtered = filter_locale_data_by_master($new_data, $master, $selected_locale);
+        update_option('translation_' . strtolower($selected_locale) . '_data', $filtered);
+        $message = '<div class="updated"><p>Locale updated!</p></div>';
+      }
+    }
+    error_log('TRANSLATION EDITOR SAVE: locale=' . $selected_locale . ' data=' . print_r($_POST['hierarchical_json'], true));
   }
 
-  wp_nonce_field('save_translations', 'translation_nonce');
+  // Get data for display
+  $master = get_option('translation_master_json', []);
+  $locale_data = $is_master
+    ? $master
+    : get_option('translation_' . strtolower($selected_locale) . '_data', []);
+
+
 ?>
-  <div class="translation-editor-main">
-    <div class="notice notice-info">
-      <p><strong>Edit translations for: <?php echo esc_html($post->post_title); ?></strong></p>
-    </div>
-
-    <table class="translation-fields-table">
-      <tbody>
-        <?php foreach ($expected_keys as $key): ?>
-          <tr>
-            <th class="translation-key-label">
-              <?php echo esc_html($key); ?>
-            </th>
-            <td>
-              <input
-                type="text"
-                id="<?php echo esc_attr($key); ?>"
-                name="translation_<?php echo esc_attr($key); ?>"
-                value="<?php echo esc_attr($current_values[$key]); ?>"
-                class="large-text"
-                placeholder="Enter translation for <?php echo esc_attr($key); ?>" />
-            </td>
-          </tr>
+  <div class="wrap">
+    <h1>Translation Editor</h1>
+    <?php echo $message; ?>
+    <form method="get" action="<?php echo admin_url('admin.php'); ?>" style="margin-bottom:20px;">
+      <input type="hidden" name="page" value="translation-editor" />
+      <label><strong>Select Locale:</strong></label>
+      <select name="locale" onchange="this.form.submit()">
+        <?php foreach ($available_locales as $loc): ?>
+          <option value="<?php echo esc_attr($loc); ?>" <?php selected($selected_locale, $loc); ?>><?php echo esc_html(strtoupper($loc)); ?></option>
         <?php endforeach; ?>
-      </tbody>
-    </table>
+      </select>
+    </form>
+    <form method="post" id="translation-editor-form">
+      <?php wp_nonce_field('translation_editor_action', 'translation_editor_nonce'); ?>
+      <input type="hidden" name="locale" value="<?php echo esc_attr($selected_locale); ?>" />
+      <h2><?php echo esc_html(strtoupper($selected_locale)); ?> Translations</h2>
+      <p>Edit the translations below. <?php if ($is_master): ?><strong>You can add/remove keys and change structure for en_US (master).</strong><?php else: ?><strong>You can only edit values for this locale.</strong><?php endif; ?></p>
+      <div style="margin-bottom:10px;">
+        <button type="button" class="button" onclick="expandAllRows()">Expand All</button>
+        <button type="button" class="button" onclick="collapseAllRows()">Collapse All</button>
+      </div>
+      <div id="translation-tree"></div>
+      <textarea name="hierarchical_json" id="hierarchical_json" style="display:none;"></textarea>
+      <p><input type="submit" name="save_translations" value="Save Changes" class="button button-primary" /></p>
+    </form>
+    <script>
+      // Hierarchical Tree Editor
+      const isMaster = <?php echo $is_master ? 'true' : 'false'; ?>;
+      let data = <?php echo json_encode($locale_data, JSON_PRETTY_PRINT); ?>;
+      let master = <?php echo json_encode($master, JSON_PRETTY_PRINT); ?>;
+      const container = document.getElementById('translation-tree');
 
+      function renderTree(obj, parent, path = []) {
+        for (const key in obj) {
+          const value = obj[key];
+          const row = document.createElement('div');
+          row.style.marginLeft = (path.length * 20) + 'px';
+          row.className = 'tree-row';
+          // Key name 
+          let keyInput;
+          if (isMaster) {
+            keyInput = document.createElement('input');
+            keyInput.type = 'text';
+            keyInput.value = key;
+            keyInput.className = 'tree-key';
+            keyInput.style.width = '180px';
+            keyInput.onchange = function() {
+              const oldKey = key;
+              const newKey = keyInput.value;
+              if (!newKey) return;
+              // Rename key in data
+              let ref = data;
+              for (let i = 0; i < path.length; i++) ref = ref[path[i]];
+              ref[newKey] = ref[oldKey];
+              delete ref[oldKey];
+              render();
+            };
+          } else {
+            keyInput = document.createElement('span');
+            keyInput.textContent = key;
+            keyInput.className = 'tree-key';
+            keyInput.style.width = '180px';
+          }
+          row.appendChild(keyInput);
+          if (typeof value === 'object' && value !== null) {
+            // Expand/collapse button
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = '[+]';
+            btn.className = 'tree-toggle';
+            btn.onclick = function() {
+              const next = row.nextSibling;
+              let show = true;
+              let sibling = next;
+              while (sibling && sibling.className === 'tree-row') {
+                if (sibling.style.display === 'none') show = false;
+                sibling.style.display = sibling.style.display === 'none' ? '' : 'none';
+                sibling = sibling.nextSibling;
+              }
+              btn.textContent = btn.textContent === '[+]' ? '[-]' : '[+]';
+            };
+            row.insertBefore(btn, keyInput);
+            parent.appendChild(row);
+            renderTree(value, parent, path.concat([key]));
+          } else {
+            const valInput = document.createElement('input');
+            valInput.type = 'text';
+            valInput.value = value;
+            valInput.className = 'tree-value';
+            valInput.style.width = '300px';
+            valInput.onchange = function() {
+              let ref = data;
+              for (let i = 0; i < path.length; i++) ref = ref[path[i]];
+              ref[key] = valInput.value;
+              document.getElementById('hierarchical_json').value = JSON.stringify(data);
+            };
+            row.appendChild(valInput);
+            if (isMaster) {
+              const delBtn = document.createElement('button');
+              delBtn.type = 'button';
+              delBtn.textContent = 'Delete';
+              delBtn.className = 'tree-delete';
+              delBtn.onclick = function() {
+                let ref = data;
+                for (let i = 0; i < path.length; i++) ref = ref[path[i]];
+                delete ref[key];
+                render();
+              };
+              row.appendChild(delBtn);
+            }
+            parent.appendChild(row);
+          }
+        }
+        // Add new key (master only, at this level)
+        if (isMaster) {
+          const addRow = document.createElement('div');
+          addRow.style.marginLeft = (path.length * 20) + 'px';
+          const addBtn = document.createElement('button');
+          addBtn.type = 'button';
+          addBtn.textContent = '+ Add Key';
+          addBtn.onclick = function() {
+            let ref = data;
+            for (let i = 0; i < path.length; i++) ref = ref[path[i]];
+            let newKey = prompt('Enter new key name:');
+            if (!newKey) return;
+            if (ref[newKey]) {
+              alert('Key already exists!');
+              return;
+            }
+            ref[newKey] = '';
+            render();
+          };
+          addRow.appendChild(addBtn);
+          parent.appendChild(addRow);
+        }
+      }
+
+      function render() {
+        container.innerHTML = '';
+        renderTree(data, container, []);
+        document.getElementById('hierarchical_json').value = JSON.stringify(data);
+      }
+
+      function expandAllRows() {
+        document.querySelectorAll('.tree-row').forEach(row => row.style.display = '');
+        document.querySelectorAll('.tree-toggle').forEach(btn => btn.textContent = '[-]');
+      }
+
+      function collapseAllRows() {
+        document.querySelectorAll('.tree-row').forEach(row => row.style.display = '');
+        document.querySelectorAll('.tree-toggle').forEach(btn => btn.textContent = '[+]');
+      }
+      // Ensure latest data is saved before submit
+      document.getElementById('translation-editor-form').addEventListener('submit', function(e) {
+        document.getElementById('hierarchical_json').value = JSON.stringify(data);
+      });
+      render();
+    </script>
     <style>
-      .translation-editor-main {
-        padding: 20px 0;
-        background: #fff9db;
-        border-radius: 8px;
-        margin-top: 10px;
+      .tree-row {
+        margin-bottom: 4px;
       }
 
-      .translation-fields-table {
-        width: 90%;
-        max-width: 800px;
-        border-collapse: separate;
-        border-spacing: 0 10px;
-        margin-left: 0;
+      .tree-key {
+        display: inline-block;
+        font-weight: bold;
+        margin-right: 10px;
       }
 
-      .translation-fields-table th {
-        text-align: left;
-        vertical-align: middle;
-        padding: 8px 20px 8px 10px;
-        font-weight: 600;
-        color: #23282d;
-        width: 200px;
-        white-space: nowrap;
+      .tree-value {
+        display: inline-block;
+        margin-right: 10px;
       }
 
-      .translation-fields-table input[type="text"] {
-        padding: 4px 5px;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        font-size: 13px;
+      .tree-delete {
+        margin-left: 10px;
+        color: #a00;
       }
 
-      .translation-fields-table input[type="text"]:focus {
-        border-color: #0073aa;
-        box-shadow: 0 0 0 1px #0073aa;
-        outline: none;
+      .tree-toggle {
+        margin-right: 8px;
       }
     </style>
   </div>
 <?php
-}
-
-// Save translations when post is saved
-add_action('save_post', function ($post_id) {
-  // Check if this is our post type
-  if (get_post_type($post_id) !== 'console-translations') {
-    return;
-  }
-
-  if (!isset($_POST['translation_nonce']) || !wp_verify_nonce($_POST['translation_nonce'], 'save_translations')) {
-    return;
-  }
-
-  $master_json = get_option('translation_master_json', ['keys' => []]);
-  $expected_keys = array_column($master_json['keys'], 'key');
-
-  // Save each translation
-  foreach ($expected_keys as $key) {
-    $field_name = 'translation_' . $key;
-    if (isset($_POST[$field_name])) {
-      $value = sanitize_text_field($_POST[$field_name]);
-      update_post_meta($post_id, $key, $value);
-    }
-  }
-});
-
-// Functions to process the translation JSON
-function process_translation_json($json_data)
-{
-  $data = json_decode($json_data, true);
-  if (!$data || !isset($data['keys']) || !is_array($data['keys'])) {
-    return new WP_Error('invalid_json', 'Invalid JSON format. Ensure it includes a "keys" array.');
-  }
-
-  $sanitized_data = ['keys' => []];
-  foreach ($data['keys'] as $key_data) {
-    if (!isset($key_data['key']) || !isset($key_data['translations']) || !is_array($key_data['translations'])) {
-      continue;
-    }
-    $sanitized_key = sanitize_key($key_data['key']);
-    $sanitized_translations = [];
-    foreach ($key_data['translations'] as $locale => $translation) {
-      $sanitized_translations[sanitize_text_field($locale)] = sanitize_text_field($translation);
-    }
-    $sanitized_data['keys'][] = [
-      'key' => $sanitized_key,
-      'translations' => $sanitized_translations
-    ];
-  }
-
-  if (empty($sanitized_data['keys'])) {
-    return new WP_Error('empty_data', 'No valid keys or translations found.');
-  }
-
-  return $sanitized_data;
-}
-
-function import_translations($data)
-{
-  foreach ($data['keys'] as $key_data) {
-    $key = $key_data['key'];
-    foreach ($key_data['translations'] as $locale => $translation) {
-      if ($key === '' || $locale === '') {
-        continue;
-      }
-      $posts = get_posts([
-        'post_type' => 'console-translations',
-        'name' => $locale,
-        'post_status' => 'publish',
-        'numberposts' => 1
-      ]);
-      if ($posts) {
-        $post_id = $posts[0]->ID;
-      } else {
-        $post_id = wp_insert_post([
-          'post_type' => 'console-translations',
-          'post_status' => 'publish',
-          'post_name' => $locale,
-          'post_title' => $locale
-        ]);
-      }
-      // Save directly to post meta (NO ACF)
-      update_post_meta($post_id, $key, $translation);
-    }
-  }
-}
-
-// Remove support for title and editor for console-translations
-add_action('init', function () {
-  remove_post_type_support('console-translations', 'title');
-  remove_post_type_support('console-translations', 'editor');
-});
-
-// Hide any remaining title/editor UI in the block editor for console-translations
-add_action('admin_head', function () {
-  $screen = get_current_screen();
-  if ($screen && $screen->post_type === 'console-translations') {
-    echo '<style>
-            #titlediv, .edit-post-title-wrapper, #post-title-0, .block-editor-block-list__layout, .edit-post-visual-editor {
-                display: none !important;
-            }
-        </style>';
-  }
-});
-
-// Excel Import Functions
-function process_translation_excel($file_path, $original_filename)
-{
-  // Check if file exists and is readable
-  if (!file_exists($file_path) || !is_readable($file_path)) {
-    return new WP_Error('file_error', 'File not found or not readable.');
-  }
-
-  $file_extension = strtolower(pathinfo($original_filename, PATHINFO_EXTENSION));
-
-  // Handle CSV files
-  if ($file_extension === 'csv') {
-    return process_csv_file($file_path);
-  }
-
-  // Handle Excel files (.xlsx, .xls)
-  if (in_array($file_extension, ['xlsx', 'xls'])) {
-    return process_excel_file($file_path);
-  }
-
-  return new WP_Error('unsupported_format', 'Unsupported file format. Please use .xlsx, .xls, or .csv files.');
-}
-
-function process_csv_file($file_path)
-{
-  $handle = fopen($file_path, 'r');
-  if (!$handle) {
-    return new WP_Error('file_error', 'Could not open CSV file.');
-  }
-
-  $data = [];
-  $row_number = 0;
-
-  while (($row = fgetcsv($handle)) !== false) {
-    $row_number++;
-
-    // Skip empty rows
-    if (empty(array_filter($row))) {
-      continue;
-    }
-
-    // First row should be headers
-    if ($row_number === 1) {
-      $headers = array_map('trim', $row);
-      continue;
-    }
-
-    // Process data rows
-    if (isset($headers) && count($row) >= 2) {
-      $key = trim($row[0]);
-      if (empty($key)) {
-        continue;
-      }
-
-      $translations = [];
-      for ($i = 1; $i < count($headers); $i++) {
-        $locale = trim($headers[$i]);
-        $translation = isset($row[$i]) ? trim($row[$i]) : '';
-        if (!empty($locale) && !empty($translation)) {
-          $translations[$locale] = $translation;
-        }
-      }
-
-      if (!empty($translations)) {
-        $data[] = [
-          'key' => $key,
-          'translations' => $translations
-        ];
-      }
-    }
-  }
-
-  fclose($handle);
-
-  if (empty($data)) {
-    return new WP_Error('empty_data', 'No valid translation data found in CSV file.');
-  }
-
-  return ['keys' => $data];
-}
-
-function process_excel_file($file_path)
-{
-  // Check if PhpSpreadsheet is available
-  if (!class_exists('PhpOffice\PhpSpreadsheet\IOFactory')) {
-    return new WP_Error('phpspreadsheet_not_available', 'PhpSpreadsheet library is not available. Please install it via Composer.');
-  }
-
-  try {
-    // Load the Excel file
-    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file_path);
-
-    // Get the first worksheet
-    $worksheet = $spreadsheet->getActiveSheet();
-
-    // Get the highest row and column numbers
-    $highestRow = $worksheet->getHighestRow();
-    $highestColumn = $worksheet->getHighestColumn();
-    $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
-
-    // Get headers from first row
-    $headers = [];
-    for ($col = 1; $col <= $highestColumnIndex; $col++) {
-      $cellValue = $worksheet->getCell(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . '1')->getValue();
-      $headers[$col] = trim($cellValue);
-    }
-
-    // Validate headers
-    if (empty($headers[1]) || strtolower($headers[1]) !== 'key') {
-      return new WP_Error('invalid_headers', 'First column must be "Key". Found: ' . $headers[1]);
-    }
-
-    $data = [];
-
-    // Process data rows (starting from row 2)
-    for ($row = 2; $row <= $highestRow; $row++) {
-      $key = trim($worksheet->getCell('A' . $row)->getValue());
-
-      // Skip empty rows
-      if (empty($key)) {
-        continue;
-      }
-
-      $translations = [];
-
-      // Process each column (starting from column 2)
-      for ($col = 2; $col <= $highestColumnIndex; $col++) {
-        $locale = trim($headers[$col]);
-        $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col);
-        $translation = trim($worksheet->getCell($columnLetter . $row)->getValue());
-
-        if (!empty($locale) && !empty($translation)) {
-          $translations[$locale] = $translation;
-        }
-      }
-
-      if (!empty($translations)) {
-        $data[] = [
-          'key' => $key,
-          'translations' => $translations
-        ];
-      }
-    }
-
-    if (empty($data)) {
-      return new WP_Error('empty_data', 'No valid translation data found in Excel file.');
-    }
-
-    return ['keys' => $data];
-  } catch (Exception $e) {
-    return new WP_Error('excel_processing_error', 'Error processing Excel file: ' . $e->getMessage());
-  }
-}
-
-function download_excel_template()
-{
-  // Verify nonce for AJAX requests
-  if (isset($_GET['_wpnonce'])) {
-    if (!wp_verify_nonce($_GET['_wpnonce'], 'import_translations_action')) {
-      wp_die('Security check failed');
-    }
-  } else {
-    // For POST requests, use the old nonce check
-    if (!check_admin_referer('import_translations_action', 'import_translations_nonce')) {
-      wp_die('Security check failed');
-    }
-  }
-
-  // Prevent any output before headers
-  if (ob_get_level()) {
-    ob_end_clean();
-  }
-
-  // Create CSV template content
-  $template_content = "Key,en_us,es_es,fr_ca\n";
-  $template_content .= "dashboard,Dashboard,Panel,Tableau\n";
-  $template_content .= "settings,Settings,Configuración,Paramètres\n";
-  $template_content .= "profile,Profile,Perfil,Profil\n";
-  $template_content .= "logout,Logout,Cerrar sesión,Déconnexion\n";
-  $template_content .= "save,Save,Guardar,Enregistrer\n";
-  $template_content .= "cancel,Cancel,Cancelar,Annuler\n";
-  $template_content .= "delete,Delete,Eliminar,Supprimer\n";
-  $template_content .= "edit,Edit,Editar,Modifier\n";
-  $template_content .= "add,Add,Agregar,Ajouter\n";
-  $template_content .= "search,Search,Buscar,Rechercher\n";
-
-  // Set headers for download
-  nocache_headers();
-  header('Content-Type: text/csv; charset=utf-8');
-  header('Content-Disposition: attachment; filename="translation_template.csv"');
-  header('Content-Length: ' . strlen($template_content));
-
-  // Output the CSV content
-  echo $template_content;
-  exit;
-}
-
-function export_translations_to_excel()
-{
-  // Verify nonce for AJAX requests
-  if (isset($_GET['_wpnonce'])) {
-    if (!wp_verify_nonce($_GET['_wpnonce'], 'import_translations_action')) {
-      wp_die('Security check failed');
-    }
-  } else {
-    // For POST requests, use the old nonce check
-    if (!check_admin_referer('import_translations_action', 'import_translations_nonce')) {
-      wp_die('Security check failed');
-    }
-  }
-
-  // Get the master JSON to know which keys exist
-  $master_json = get_option('translation_master_json', ['keys' => []]);
-
-  if (empty($master_json['keys'])) {
-    wp_die('No translation keys found. Please import some translations first.');
-  }
-
-  // Get all locale posts
-  $locale_posts = get_posts([
-    'post_type' => 'console-translations',
-    'post_status' => 'publish',
-    'numberposts' => -1
-  ]);
-
-  // Create a map of locale slugs
-  $locales = [];
-  foreach ($locale_posts as $post) {
-    $locales[] = $post->post_name;
-  }
-
-  if (empty($locales)) {
-    wp_die('No translation locales found. Please create some translation posts first.');
-  }
-
-  // Create CSV content
-  $csv_content = "Key," . implode(',', $locales) . "\n";
-
-  foreach ($master_json['keys'] as $key_data) {
-    $key = $key_data['key'];
-    $row = [$key];
-
-    foreach ($locales as $locale) {
-      $posts = get_posts([
-        'post_type' => 'console-translations',
-        'name' => $locale,
-        'post_status' => 'publish',
-        'numberposts' => 1
-      ]);
-
-      if ($posts) {
-        $translation = get_post_meta($posts[0]->ID, $key, true);
-        $row[] = $translation ?: '';
-      } else {
-        $row[] = '';
-      }
-    }
-
-    $csv_content .= implode(',', array_map('csv_escape', $row)) . "\n";
-  }
-
-  // Prevent any output before headers
-  if (ob_get_level()) {
-    ob_end_clean();
-  }
-
-  // Set headers for download
-  nocache_headers();
-  header('Content-Type: text/csv; charset=utf-8');
-  header('Content-Disposition: attachment; filename="translations_export_' . date('Y-m-d') . '.csv"');
-  header('Content-Length: ' . strlen($csv_content));
-
-  echo $csv_content;
-  exit;
-}
-
-function csv_escape($value)
-{
-  // Escape CSV values properly
-  if (strpos($value, ',') !== false || strpos($value, '"') !== false || strpos($value, "\n") !== false) {
-    return '"' . str_replace('"', '""', $value) . '"';
-  }
-  return $value;
-}
-
-function export_translations_to_excel_native()
-{
-  // Verify nonce for AJAX requests
-  if (isset($_GET['_wpnonce'])) {
-    if (!wp_verify_nonce($_GET['_wpnonce'], 'import_translations_action')) {
-      wp_die('Security check failed');
-    }
-  } else {
-    // For POST requests, use the old nonce check
-    if (!check_admin_referer('import_translations_action', 'import_translations_nonce')) {
-      wp_die('Security check failed');
-    }
-  }
-
-  // Check if PhpSpreadsheet is available
-  if (!class_exists('PhpOffice\PhpSpreadsheet\Spreadsheet')) {
-    wp_die('PhpSpreadsheet library is not available. Please install it via Composer.');
-  }
-
-  // Get the master JSON to know which keys exist
-  $master_json = get_option('translation_master_json', ['keys' => []]);
-
-  if (empty($master_json['keys'])) {
-    wp_die('No translation keys found. Please import some translations first.');
-  }
-
-  // Get all locale posts
-  $locale_posts = get_posts([
-    'post_type' => 'console-translations',
-    'post_status' => 'publish',
-    'numberposts' => -1
-  ]);
-
-  // Create a map of locale slugs
-  $locales = [];
-  foreach ($locale_posts as $post) {
-    $locales[] = $post->post_name;
-  }
-
-  if (empty($locales)) {
-    wp_die('No translation locales found. Please create some translation posts first.');
-  }
-
-  try {
-    // Create new Spreadsheet object
-    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
-
-    // Set headers
-    $sheet->setCellValue('A1', 'Key');
-    $col = 2;
-    foreach ($locales as $locale) {
-      $sheet->setCellValue(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . '1', $locale);
-      $col++;
-    }
-
-    // Style headers
-    $headerStyle = [
-      'font' => [
-        'bold' => true,
-        'color' => ['rgb' => 'FFFFFF'],
-      ],
-      'fill' => [
-        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-        'startColor' => ['rgb' => '4472C4'],
-      ],
-    ];
-    $sheet->getStyle('A1:' . \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col - 1) . '1')->applyFromArray($headerStyle);
-
-    // Add data
-    $row = 2;
-    foreach ($master_json['keys'] as $key_data) {
-      $key = $key_data['key'];
-      $sheet->setCellValue('A' . $row, $key);
-
-      $col = 2;
-      foreach ($locales as $locale) {
-        $posts = get_posts([
-          'post_type' => 'console-translations',
-          'name' => $locale,
-          'post_status' => 'publish',
-          'numberposts' => 1
-        ]);
-
-        if ($posts) {
-          $translation = get_post_meta($posts[0]->ID, $key, true);
-          $sheet->setCellValue(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row, $translation ?: '');
-        } else {
-          $sheet->setCellValue(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row, '');
-        }
-        $col++;
-      }
-      $row++;
-    }
-
-    // Auto-size columns
-    foreach (range('A', \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col - 1)) as $column) {
-      $sheet->getColumnDimension($column)->setAutoSize(true);
-    }
-
-    // Create Excel file
-    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-
-    // Prevent any output before headers
-    if (ob_get_level()) {
-      ob_end_clean();
-    }
-
-    // Set headers for download
-    nocache_headers();
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment; filename="translations_export_' . date('Y-m-d') . '.xlsx"');
-
-    // Output file
-    $writer->save('php://output');
-    exit;
-  } catch (Exception $e) {
-    wp_die('Error creating Excel file: ' . $e->getMessage());
-  }
 }
