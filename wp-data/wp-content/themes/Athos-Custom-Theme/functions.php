@@ -443,13 +443,9 @@ function render_translation_editor_page()
       <input type="hidden" name="locale" value="<?php echo esc_attr($selected_locale); ?>" />
       <h2><?php echo esc_html(strtoupper($selected_locale)); ?> Translations</h2>
       <p>Edit the translations below. <?php if ($is_master): ?><strong>You can add/remove keys and change structure for en_US (master).</strong><?php else: ?><strong>You can only edit values for this locale.</strong><?php endif; ?></p>
-      <div style="margin-bottom:10px;">
-        <button type="button" class="button" onclick="expandAllRows()">Expand All</button>
-        <button type="button" class="button" onclick="collapseAllRows()">Collapse All</button>
-      </div>
+      <p><input type="submit" name="save_translations" value="Save Changes" class="button button-primary" /></p>
       <div id="translation-tree"></div>
       <textarea name="hierarchical_json" id="hierarchical_json" style="display:none;"></textarea>
-      <p><input type="submit" name="save_translations" value="Save Changes" class="button button-primary" /></p>
     </form>
     <script>
       // Hierarchical Tree Editor
@@ -471,7 +467,7 @@ function render_translation_editor_page()
             keyInput.type = 'text';
             keyInput.value = key;
             keyInput.className = 'tree-key';
-            keyInput.style.width = '180px';
+            keyInput.style.width = '250px';
             keyInput.onchange = function() {
               const oldKey = key;
               const newKey = keyInput.value;
@@ -569,15 +565,6 @@ function render_translation_editor_page()
         document.getElementById('hierarchical_json').value = JSON.stringify(data);
       }
 
-      function expandAllRows() {
-        document.querySelectorAll('.tree-row').forEach(row => row.style.display = '');
-        document.querySelectorAll('.tree-toggle').forEach(btn => btn.textContent = '[-]');
-      }
-
-      function collapseAllRows() {
-        document.querySelectorAll('.tree-row').forEach(row => row.style.display = '');
-        document.querySelectorAll('.tree-toggle').forEach(btn => btn.textContent = '[+]');
-      }
       // Ensure latest data is saved before submit
       document.getElementById('translation-editor-form').addEventListener('submit', function(e) {
         document.getElementById('hierarchical_json').value = JSON.stringify(data);
